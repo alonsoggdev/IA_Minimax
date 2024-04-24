@@ -29,8 +29,31 @@ public class AIController : MonoBehaviour
             //Estado inicial:
                 //Vida Actual
                 //Energia Actual
-            //Horizonte?
+            //Horizonte
+            //Fragmentar los estados en estados más amplios
+                //
+
+        //CALCULAR VALOR HEURISTICO
+        //Variables: Daño, %impacto, energía, vida oponente, vida propia
+        //Prioridades:
+            //Mantenerse con vida
+            //Matar al enemigo
+                //Mantener energia
+                //Hacerle daño
+                
+
+        //? FORMULA HEURISTICA
+        //* Vida = Vida * 20
+        //* Energía = Energía
+
         
+        //? if energía < 25
+            //? REST
+        /* if h > 250 {
+
+        }
+        
+        */
         
         
     }
@@ -42,28 +65,13 @@ public class AIController : MonoBehaviour
 
     private void ExpectMiniMax()
     {
-        //SIN HORIZONTE
-        //Construir el árbol de juego
-        // Detectar el nodo en el que GameState.IsFinished = true;
-
         //CON HORIZONTE
         //Construir un árbol de juego con horizonte h
         //Calcular el valor de cada nodo terminal
         //Elegir el valor mayor
         //Colapsar el arbol desde ese nodo y ejecutar la accion
 
-        //CALCULAR VALOR HEURISTICO
-        //Variables: Daño, %impacto, energía, vida oponente, vida propia
-        //Prioridades:
-            //Mantenerse con vida
-            //Matar al enemigo
-                //Mantener energia
-                //Hacerle daño
-                //70-30 de posibilidades de un ataque u otro:
-                    //Enemigo con <= 4 vida>
-                        //Ataque ligero 70%
-                    //Enemigo con >4 de vida
-                        //Ataque pesado 70%
+       
                     
                             
     }
