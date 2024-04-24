@@ -16,5 +16,5 @@ MonoBehaviour:
   TurnNumber: 0
   CurrentPlayer: {fileID: 11400000, guid: 8f32bcd56deafcf498c296bd63430027, type: 2}
   ListOfPlayers: {fileID: 11400000, guid: 96ab79ecd622ef04f84e0e95721af4bb, type: 2}
-  LeftPlayerIsHuman: 1
+  LeftPlayerIsHuman: 0
   RightPlayerIsHuman: 1
