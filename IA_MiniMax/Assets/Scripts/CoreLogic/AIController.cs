@@ -49,6 +49,9 @@ public class AIController : MonoBehaviour
 
         
         /*
+        Funcion que calcula el valor heuristico tras cada uno de los posibles ataques (nodeList) y almacena el que deje a la IA con mejor resultado
+        De momento solo tiene en cuenta la diferencia de ambos valores heuristicos
+
             int bestH = 0;
             Node bestNode = null;
             int closerH = Math.infinite;
