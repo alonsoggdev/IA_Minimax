@@ -43,15 +43,36 @@ public class AIController : MonoBehaviour
                 
 
         //? FORMULA HEURISTICA
+        // La vida vale el doble en cuanto al valor heuristico
         //* Vida = Vida * 20
         //* Energía = Energía
 
         
-        //? if energía < 25
-            //? REST
-        /* if h > 250 {
+        /*
+            int bestH = 0;
+            Node bestNode = null;
+            int closerH = Math.infinite;
+            Node closerNode = null;
 
-        }
+            for  (int i = 0; i < nodeList.Count; i++){
+                
+                int thisH = this.h - nodeList[i].energy;
+                int otherH = other.h - nodeList[i].health * 20;
+
+                int calcH = thisH - otherH;
+                if (calcH > bestH){
+                    bestH = calcH;
+                    bestNode = nodeList[i];
+                }
+                if (calcH < Math.infinite) {
+                    closerH = calcH;
+                    closerNode = nodeList[i];
+                }
+            }
+
+            if (bestNode != null){
+                attackChosen = bestNode;
+            } else attackChosen = closerNode;
         
         */
         
