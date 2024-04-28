@@ -754,7 +754,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4616e1bb22d1b314385c2b1763133d7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Body: {fileID: 0}
+  Body: {fileID: 1824166626}
   Player: {fileID: 11400000, guid: 8f32bcd56deafcf498c296bd63430027, type: 2}
   GameState: {fileID: 11400000, guid: a841703fbd27b28448b694a9b62f749e, type: 2}
   AttackEvent: {fileID: 11400000, guid: f7754349b4b62e44a887465c45d4dc0c, type: 2}
@@ -1666,6 +1666,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1824166626 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5376948542682733498, guid: 28104e3b52721b6438c8f438e30f43ee,
+    type: 3}
+  m_PrefabInstance: {fileID: 440431657597136740}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1863453622 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2770768936440312124, guid: 28104e3b52721b6438c8f438e30f43ee,
