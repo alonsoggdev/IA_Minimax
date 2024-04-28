@@ -13,11 +13,13 @@ public class GameState : ScriptableObject, ISerializationCallbackReceiver
     
     public PlayerInfo CurrentPlayer;
     public PlayerList ListOfPlayers;
+
     public bool LeftPlayerIsHuman;
     public bool RightPlayerIsHuman;
 
     public void OnBeforeSerialize()
     {
+
     }
 
     public void OnAfterDeserialize()

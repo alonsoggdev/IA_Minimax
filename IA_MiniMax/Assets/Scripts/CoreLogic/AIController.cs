@@ -51,13 +51,13 @@ public class AIController : MonoBehaviour
             }
         }
 
-        // Debug.Log("_valueH <" + _valueH + "> _valueP <" + _valueP + ">");
+        //Debug.Log("_valueH <" + _valueH + "> _valueP <" + _valueP + ">");
 
         _valueAttacks = new double[Player.Attacks.Length];
 
         for (int i = 0; i < _valueAttacks.Length; i++)
         {
-            _valueAttacks[i] = ((Player.Attacks[i].MinDam + Player.Attacks[i].MaxDam) / 2) * Player.Attacks[i].HitChance * Player.Attacks[i].Energy/100;
+            _valueAttacks[i] = ((Player.Attacks[i].MinDam + Player.Attacks[i].MaxDam) / 2) * Player.Attacks[i].HitChance * Player.Attacks[i].Energy/10;
             Debug.Log("name of attack " + Player.Attacks[i].name);
             Debug.Log("Attack value number " + i + ": " + _valueAttacks[i].ToString());
         }
@@ -93,20 +93,6 @@ public class AIController : MonoBehaviour
         //Ataque ligero 70%
         //Enemigo con >4 de vida
         //Ataque pesado 70%
-
-        List<GameState> openNodes = new List<GameState>();
-
-
-        if (h == 0 || GameState.IsFinished)
-        {
-            return Evaluate(GameState);
-        }
-
-        if (isMaxing)
-        {
-            float bestValue = Mathf.NegativeInfinity;
-
-        }
         
 
                 
@@ -118,10 +104,6 @@ public class AIController : MonoBehaviour
         return 0;                 
     }
 
-    private float Evaluate(GameState GameState)
-    {
-        return 0;
-    }
     private void Act()
     {
         // Debug.Log("IA: " + _attackToDo.ToString());
