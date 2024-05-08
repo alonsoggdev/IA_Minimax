@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
+using UnityEditor.Experimental.GraphView;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
@@ -20,6 +22,12 @@ public class AIController : MonoBehaviour
     private double _valueH = 0;
     private double _valueP = 0;
     private double[] _valueAttacks = { 0 };
+    private bool isMax = false;
+    public int k = 3;
+
+    public Node firstNode = new Node(-Mathf.Infinity, null, null);
+    public Node openNode;
+    public Node[] expandNodes;
 
     public void OnGameTurnChange(PlayerInfo currentTurn)
     {
@@ -36,6 +44,7 @@ public class AIController : MonoBehaviour
         //Vida Actual
         //Energia Actual
         //Horizonte?
+        openNode = firstNode;
 
         _attackToDo = new Attack();
 
@@ -64,32 +73,73 @@ public class AIController : MonoBehaviour
 
     }
 
-    private double[] GetStates(double[] valueAttack, PlayerInfo otherPlayer)
-    {
-        double[] states = {};
-
-        for(int i = 0; i < valueAttack.Length; i++)
-        {
-            // Calcula el valor de cada estado
-            states[i] = valueAttack[i] + _valueP - otherPlayer.HP;
-        }
-        return states;
-    }
-
     private void Think()
     {
         ExpectMiniMax();
     }
 
-    private void ExpectMiniMax()
+    public double GetValue(AttackInfo _attack, PlayerInfo thisPlayer, PlayerInfo otherPlayer)
     {
-        double[] states = GetStates(_valueAttacks, otherPlayer);
-        
-        foreach (double state in states)
+        double dmg = (_attack.MinDam + _attack.MaxDam) / 2;
+        double val = (dmg * _attack.HitChance - (otherPlayer.HP - dmg / 10) + ((thisPlayer.Energy - _attack.Energy) / 100));
+
+        //Si tenemos que usar el random
+        switch (_attack.Name)
         {
-            double value = Mathf.Infinity;
+            case "Dummy":
+
+                break;
+            case "Hard":
+                break;
+            case "Soft":
+                break;
+            case "Rest":
+                break;
+            default:
+                Debug.Log("Wrong attack chosen");
+                break;
         }
 
+        return val;
+
+    }
+
+    private Node MinValue(Node node, int k)
+    {
+        return node;
+    }
+
+    private Node MaxValue(Node node, int k)
+    {
+        if (k < 4 && !GameState.IsFinished)
+        {
+            //Abrimos cuatro nodos por las cuatro acciones posibles
+            for(int i = 0; i < 4; i++)
+            {
+                double val = GetValue(Player.Attacks[i], Player, otherPlayer);
+                expandNodes[i] = new Node(val, Player.Attacks[i], openNode);
+            }
+
+            foreach(Node expandedNode in expandNodes)
+            {
+                //De momento llama a min, pero tenemos que preguntar a Luis si podemos hacer esto y no usar el random.
+                //Si no, tendrems que cambar el GetValue y usar el random
+                MinValue(expandedNode, k);
+            }
+        }
+
+        return node;
+    }
+
+    private Node RandomValue(Node node, bool isMax)
+    {
+        return node;
+    }
+
+    private void ExpectMiniMax()
+    {
+
+        MaxValue(openNode, k);
 
 
         //SIN HORIZONTE
