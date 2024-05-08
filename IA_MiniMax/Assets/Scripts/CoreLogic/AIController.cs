@@ -7,6 +7,9 @@ public class AIController : MonoBehaviour
 {
     public GameObject Body;
     public PlayerInfo Player;
+    public PlayerInfo otherPlayer;
+
+    public Attack bestAttack;
 
     public GameState GameState;
 
@@ -54,11 +57,23 @@ public class AIController : MonoBehaviour
 
         for (int i = 0; i < _valueAttacks.Length; i++)
         {
-            _valueAttacks[i] = ((Player.Attacks[i].MinDam + Player.Attacks[i].MaxDam) / 2) * Player.Attacks[i].HitChance - Player.Attacks[i].Energy;
+            _valueAttacks[i] = ((Player.Attacks[i].MinDam + Player.Attacks[i].MaxDam) / 2) * Player.Attacks[i].HitChance - (Player.Attacks[i].Energy / 10);
             // Debug.Log("name of attack " + Player.Attacks[i].name);
             // Debug.Log("Attack value number " + i + ": " + _valueAttacks[i].ToString());
         }
-        
+
+    }
+
+    private double[] GetStates(double[] valueAttack, PlayerInfo otherPlayer)
+    {
+        double[] states = {};
+
+        for(int i = 0; i < valueAttack.Length; i++)
+        {
+            // Calcula el valor de cada estado
+            states[i] = valueAttack[i] + _valueP - otherPlayer.HP;
+        }
+        return states;
     }
 
     private void Think()
@@ -68,6 +83,15 @@ public class AIController : MonoBehaviour
 
     private void ExpectMiniMax()
     {
+        double[] states = GetStates(_valueAttacks, otherPlayer);
+        
+        foreach (double state in states)
+        {
+            double value = Mathf.Infinity;
+        }
+
+
+
         //SIN HORIZONTE
         //Construir el árbol de juego
         // Detectar el nodo en el que GameState.IsFinished = true;
@@ -81,19 +105,19 @@ public class AIController : MonoBehaviour
         //CALCULAR VALOR HEURISTICO
         //Variables: Daño, %impacto, energía, vida oponente, vida propia
         //Prioridades:
-            //Mantenerse con vida
-            //Matar al enemigo
-                //Mantener energia
-                //Hacerle daño
-                //70-30 de posibilidades de un ataque u otro:
-                    //Enemigo con <= 4 vida>
-                        //Ataque ligero 70%
-                    //Enemigo con >4 de vida
-                        //Ataque pesado 70%
-        
+        //Mantenerse con vida
+        //Matar al enemigo
+        //Mantener energia
+        //Hacerle daño
+        //70-30 de posibilidades de un ataque u otro:
+        //Enemigo con <= 4 vida>
+        //Ataque ligero 70%
+        //Enemigo con >4 de vida
+        //Ataque pesado 70%
 
-                
-                    
+
+
+
         int randomAttack = Random.Range(0, Player.Attacks.Length - 1);
         _attackToDo.AttackMade = Player.Attacks[randomAttack];
         _attackToDo.Source = Player;        

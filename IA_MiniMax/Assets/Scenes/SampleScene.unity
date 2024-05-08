@@ -756,6 +756,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Body: {fileID: 0}
   Player: {fileID: 11400000, guid: 8f32bcd56deafcf498c296bd63430027, type: 2}
+  otherPlayer: {fileID: 11400000, guid: 0feac603ef8b7974fbb5ad1e9d6661f8, type: 2}
   GameState: {fileID: 11400000, guid: a841703fbd27b28448b694a9b62f749e, type: 2}
   AttackEvent: {fileID: 11400000, guid: f7754349b4b62e44a887465c45d4dc0c, type: 2}
 --- !u!4 &721225844
