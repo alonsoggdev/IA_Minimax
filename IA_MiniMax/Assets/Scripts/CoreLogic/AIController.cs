@@ -21,20 +21,21 @@ public class AIController : MonoBehaviour
     
     private double _valueH = 0;
     private double _valueP = 0;
-    private double[] _valueAttacks = { 0 };
+    private List<double> _valueAttacks;
+    private List<double> randomValues;
     private bool isMax = false;
     public int k = 3;
 
     public Node firstNode = new Node(-Mathf.Infinity, null, null);
     public Node openNode;
-    public Node[] expandNodes;
+    public List<Node> expandNodes;
 
     public void OnGameTurnChange(PlayerInfo currentTurn)
     {
         if (currentTurn != Player) return;
         Perceive();
-        Think();
-        Act();        
+        //Think();
+        //Act();        
     }
 
     private void Perceive()
@@ -45,6 +46,7 @@ public class AIController : MonoBehaviour
         //Energia Actual
         //Horizonte?
         openNode = firstNode;
+        expandNodes = new List<Node>();
 
         _attackToDo = new Attack();
 
@@ -62,13 +64,56 @@ public class AIController : MonoBehaviour
 
         // Debug.Log("_valueH <" + _valueH + "> _valueP <" + _valueP + ">");
 
-        _valueAttacks = new double[Player.Attacks.Length];
+        _valueAttacks = new List<double>();
+        randomValues = new List<double>();
 
-        for (int i = 0; i < _valueAttacks.Length; i++)
+        for (int i = 0; i < Player.Attacks.Length; i++)
         {
-            _valueAttacks[i] = ((Player.Attacks[i].MinDam + Player.Attacks[i].MaxDam) / 2) * Player.Attacks[i].HitChance - (Player.Attacks[i].Energy / 10);
-            // Debug.Log("name of attack " + Player.Attacks[i].name);
+            int numAttacks = Player.Attacks[i].MaxDam - Player.Attacks[i].MinDam;
+            double totalValueRandom = 0;
+            if (numAttacks <= 0)
+            {
+                double temp_rest_value = - ((double) Player.Attacks[i].Energy / 100);
+                _valueAttacks.Add(temp_rest_value);
+
+                totalValueRandom += temp_rest_value;
+                randomValues.Add(totalValueRandom);
+
+                Node restNode = new Node(totalValueRandom, Player.Attacks[i], firstNode);
+                expandNodes.Add(restNode);
+
+                Debug.Log("name of attack " + Player.Attacks[i].name + " value of the attack miss: " + temp_rest_value.ToString());
+
+                continue;
+            }
+
+            for (int j = 0; j <= numAttacks; j++)
+            {
+                double temp_value = Player.Attacks[i].MinDam + j - ((double) Player.Attacks[i].Energy / 100);
+                _valueAttacks.Add(temp_value);
+
+                totalValueRandom += temp_value * (Player.Attacks[i].HitChance / numAttacks);
+
+                Debug.Log("name of attack " + Player.Attacks[i].name + " value of the attack: " + temp_value.ToString());
+            }
+            double temp_miss_value = - ((double)Player.Attacks[i].Energy / 100);
+            _valueAttacks.Add(temp_miss_value);
+
+            totalValueRandom += temp_miss_value * (1 - Player.Attacks[i].HitChance);
+            randomValues.Add(totalValueRandom);
+
+            Node calculatedNode = new Node(totalValueRandom, Player.Attacks[i], firstNode);
+            expandNodes.Add(calculatedNode);
+
+            Debug.Log("name of attack " + Player.Attacks[i].name + " value of the attack miss: " + temp_miss_value.ToString());
+
+            //_valueAttacks[i] = ((Player.Attacks[i].MinDam + Player.Attacks[i].MaxDam) / 2) * Player.Attacks[i].HitChance - (Player.Attacks[i].Energy / 10);
             // Debug.Log("Attack value number " + i + ": " + _valueAttacks[i].ToString());
+        }
+
+        for (int i  = 0; i < expandNodes.Count; i++)
+        {
+            Debug.Log("Calculo de nodo random. valor: " + expandNodes[i].val + " Name: " + expandNodes[i].attack.Name);
         }
 
     }
