@@ -25,7 +25,8 @@ public class AIController : MonoBehaviour
     private bool isMax = false;
     public int k = 3;
 
-    public Node firstNode = new Node(-Mathf.Infinity, null, null);
+    public Node MaxNode = new Node(-Mathf.Infinity, null, null);
+    public Node MinNode = new Node(Mathf.Infinity, null, null);
     public Node openNode;
     public List<Node> expandNodes;
 
@@ -44,7 +45,7 @@ public class AIController : MonoBehaviour
         //Vida Actual
         //Energia Actual
         //Horizonte?
-        openNode = firstNode;
+        openNode = MaxNode;
         expandNodes = new List<Node>();
 
         _attackToDo = new Attack();
@@ -108,7 +109,7 @@ public class AIController : MonoBehaviour
                 totalValueRandom = temp_rest_value;
             }
 
-            Node calculatedNode = new Node(totalValueRandom, attack, firstNode);
+            Node calculatedNode = new Node(totalValueRandom, attack, MaxNode);
             expandNodes.Add(calculatedNode);
         }
 
@@ -185,6 +186,24 @@ public class AIController : MonoBehaviour
 
     private Node MinValue(Node node, int k)
     {
+        if (k < 4 && !GameState.IsFinished)
+        {
+            if (node.val < MinNode.val)
+                MinNode = node;
+
+            for (int i = 0; i < Player.Attacks.Length; i++)
+            {
+                double val = GetValue(Player.Attacks[i], Player, otherPlayer);
+                expandNodes[i] = new Node(val, Player.Attacks[i], openNode);
+                openNode = expandNodes[i];
+            }
+
+            foreach (Node expandedNode in expandNodes)
+            {
+                RandomValue(expandedNode, true, k);
+            }
+
+        }
         return node;
     }
 
@@ -192,16 +211,19 @@ public class AIController : MonoBehaviour
     {
         if (k < 4 && !GameState.IsFinished)
         {
+            if (node.val > MaxNode.val)
+                MaxNode = node;
+
             //Abrimos cuatro nodos por las cuatro acciones posibles
-            for(int i = 0; i < 4; i++)
+            for(int i = 0; i < Player.Attacks.Length; i++)
             {
                 double val = GetValue(Player.Attacks[i], Player, otherPlayer);
                 expandNodes[i] = new Node(val, Player.Attacks[i], openNode);
+                openNode = expandNodes[i];
             }
 
             foreach(Node expandedNode in expandNodes)
             {
-                
                 RandomValue(expandedNode, true, k);
             }
         }
@@ -209,9 +231,48 @@ public class AIController : MonoBehaviour
         return node;
     }
 
-    private Node RandomValue(Node node, bool isMax, int k)
+    private void RandomValue(Node node, bool isMax, int k)
     {
-        return node;
+        bool hits = false;
+        if(k < 4 && !GameState.IsFinished)
+        {
+
+            if(node.attack.HitChance >= Dice.PercentageChance())
+            {
+                int valDmg = Dice.RangeRoll(node.attack.MinDam, node.attack.MaxDam);
+
+                for(int i = node.attack.MinDam; i< node.attack.MaxDam; i++)
+                {
+                    if(i == valDmg)
+                    {
+                        double val = GetValue(node.attack, Player, otherPlayer);
+                        expandNodes.Add(new Node(val, node.attack, node));
+                        openNode = expandNodes.Last();
+                        if (isMax == true)
+                        {
+                            MinValue(expandNodes.Last(), k);
+                        }
+                        else
+                            MaxValue(expandNodes.Last(), k);
+                    }
+                }
+
+            }
+            else
+            {
+                double val = GetValue(node.attack, Player, otherPlayer);
+                expandNodes.Add(new Node(val, node.attack, node));
+                openNode = expandNodes.Last();
+                if (isMax == true)
+                {
+                    MinValue(expandNodes.Last(), k);
+                }
+                else
+                    MaxValue(expandNodes.Last(), k);
+            }
+            
+        }
+
     }
 
     private void ExpectMiniMax()
