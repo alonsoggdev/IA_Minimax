@@ -167,16 +167,15 @@ public class AIController : MonoBehaviour
 
             foreach(Node expandedNode in expandNodes)
             {
-                //De momento llama a min, pero tenemos que preguntar a Luis si podemos hacer esto y no usar el random.
-                //Si no, tendrems que cambar el GetValue y usar el random
-                MinValue(expandedNode, k);
+                
+                RandomValue(expandedNode, true, k);
             }
         }
 
         return node;
     }
 
-    private Node RandomValue(Node node, bool isMax)
+    private Node RandomValue(Node node, bool isMax, int k)
     {
         return node;
     }
