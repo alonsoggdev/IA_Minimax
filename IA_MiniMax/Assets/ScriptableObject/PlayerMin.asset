@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: Player MIN
   InitialHP: 10
-  InitialEnergy: 100
+  InitialEnergy: 10
   Visual: {fileID: 11400000, guid: 9e23ceb280775584a818a711037f228f, type: 2}
   Attacks:
   - {fileID: 11400000, guid: b39edb7855cf5a64880369c8b3c2b01e, type: 2}
