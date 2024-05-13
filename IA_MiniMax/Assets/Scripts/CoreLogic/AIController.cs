@@ -25,7 +25,7 @@ public class AIController : MonoBehaviour
     private bool isMax = false;
     public int k = 3;
 
-    public Node MaxNode = new Node(-Mathf.Infinity, null, null);
+    public Node MaxNode = new Node(-Mathf.Infinity, null, null); //Esto esta al reves? Min es menos infinito
     public Node MinNode = new Node(Mathf.Infinity, null, null);
     public Node openNode;
     public List<Node> expandNodes;
@@ -45,7 +45,7 @@ public class AIController : MonoBehaviour
         //Vida Actual
         //Energia Actual
         //Horizonte?
-        openNode = MaxNode;
+        openNode = MaxNode; //No se supone que empieza min? plus habria que cambiarlo si vamos a llamar siempre a perceive, no? no siempre va a ser el mismo
         expandNodes = new List<Node>();
 
         _attackToDo = new Attack();
@@ -85,20 +85,22 @@ public class AIController : MonoBehaviour
             Min: 0
             Max:0
             Energy: -20
-
-         
+   
          */
 
+        //Recorremos todos los ataques del jugador
         for (int i = 0; i < Player.Attacks.Length; i++)
         {
             AttackInfo attack = Player.Attacks[i];
-            int numAttacks = attack.MaxDam - attack.MinDam;
+            int numAttacks = attack.MaxDam - attack.MinDam; //Calculamos el numero de variaciones de daño que tiene este ataque
             double totalValueRandom = 0;
 
+            /* Esto vale pero solo si no añadimos el jugador Random, abajo lo adapto
             // Calculate expected value for non-rest attacks
             if (numAttacks > 0)
             {
                 double expectedDamage = (attack.MinDam + attack.MaxDam) / 2.0;  // Average damage
+                //De momento usamos el daño promedio pero tenemos que hacerlo teniendo en cuenta el random
                 double temp_value = expectedDamage - _attackToDo.Target.HP - (Player.Attacks[i].Energy * 10);
                 totalValueRandom = temp_value * attack.HitChance;  // Only consider hit chance
             }
@@ -109,8 +111,30 @@ public class AIController : MonoBehaviour
                 totalValueRandom = temp_rest_value;
             }
 
-            Node calculatedNode = new Node(totalValueRandom, attack, MaxNode);
+            Node calculatedNode = new Node(totalValueRandom, attack, MaxNode); //Por que MaxNode? y no open node?
             expandNodes.Add(calculatedNode);
+            */
+
+            //Comprobamos si es o no el ataque Rest
+            if (numAttacks > 0)
+            {
+            //Recorremos cada posibilidad de daño de este ataque
+                for (int j = 0; j <= numAttacks; j++)
+                {
+                    double attack_value = (attack.MinDam + j) * (attack.HitChance / numAttacks);
+                    double total_value = attack_value - _attackToDo.Target.HP - (Player.Attacks[i].Energy * 10);
+                    Node attackNode = new Node(total_value, attack, openNode);
+                    expandNodes.Add(attackNode);
+                }
+            }
+            else
+            {
+                // Rest Attack - Prioritize Rest when no damage range (fixed damage)
+                double temp_rest_value = -_attackToDo.Target.HP;  // Rest prioritizes health gain
+                totalValueRandom = temp_rest_value;
+                Node restNode = new Node(totalValueRandom, attack, openNode);
+                expandNodes.Add(restNode);
+            }
         }
 
 
