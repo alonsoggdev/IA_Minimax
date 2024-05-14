@@ -35,145 +35,11 @@ public class AIController : MonoBehaviour
         if (currentTurn != Player) return;
         Perceive();
         Think();
-        //Act();        
+        Act();        
     }
 
     private void Perceive()
     {
-        // Información que debe saber:
-        //Estado inicial:
-        //Vida Actual
-        //Energia Actual
-        //Horizonte?
-        openNode = MaxNode; //No se supone que empieza min? plus habria que cambiarlo si vamos a llamar siempre a perceive, no? no siempre va a ser el mismo
-        expandNodes = new List<Node>();
-
-        _attackToDo = new Attack();
-        
-        foreach (PlayerInfo player in GameState.ListOfPlayers.Players)
-        {
-            if (player != Player)
-            {
-                _attackToDo.Target = player;
-            }
-        }
-
-        _valueAttacks = new List<double>();
-        randomValues = new List<double>();
-
-        /*
-            Dummy:
-            Change: 0.15
-            Min: 1
-            Max: 2
-            Energy: 10
-            
-            Soft:
-            Chance: 0.55
-            Min: 1
-            Max: 4
-            Energy: 15
-
-            Hard:
-            Chance: 0.25
-            Min: 3
-            Max: 6
-            Energy: 25
-
-            Rest:
-            Chance: 1
-            Min: 0
-            Max:0
-            Energy: -20
-   
-         */
-
-        //Recorremos todos los ataques del jugador
-        for (int i = 0; i < Player.Attacks.Length; i++)
-        {
-            AttackInfo attack = Player.Attacks[i];
-            int numAttacks = attack.MaxDam - attack.MinDam; //Calculamos el numero de variaciones de daño que tiene este ataque
-            double totalValueRandom = 0;
-
-            /* Esto vale pero solo si no añadimos el jugador Random, abajo lo adapto
-            // Calculate expected value for non-rest attacks
-            if (numAttacks > 0)
-            {
-                double expectedDamage = (attack.MinDam + attack.MaxDam) / 2.0;  // Average damage
-                //De momento usamos el daño promedio pero tenemos que hacerlo teniendo en cuenta el random
-                double temp_value = expectedDamage - _attackToDo.Target.HP - (Player.Attacks[i].Energy * 10);
-                totalValueRandom = temp_value * attack.HitChance;  // Only consider hit chance
-            }
-            else
-            {
-                // Rest Attack - Prioritize Rest when no damage range (fixed damage)
-                double temp_rest_value = -_attackToDo.Target.HP;  // Rest prioritizes health gain
-                totalValueRandom = temp_rest_value;
-            }
-
-            Node calculatedNode = new Node(totalValueRandom, attack, MaxNode); //Por que MaxNode? y no open node?
-            expandNodes.Add(calculatedNode);
-            */
-
-            //Comprobamos si es o no el ataque Rest
-            if (numAttacks > 0)
-            {
-            //Recorremos cada posibilidad de daño de este ataque
-                for (int j = 0; j <= numAttacks; j++)
-                {
-                    double attack_value = (attack.MinDam + j) * (attack.HitChance / numAttacks);
-                    double total_value = attack_value - _attackToDo.Target.HP - (Player.Attacks[i].Energy * 10);
-                    Node attackNode = new Node(total_value, attack, openNode);
-                    expandNodes.Add(attackNode);
-                }
-            }
-            else
-            {
-                // Rest Attack - Prioritize Rest when no damage range (fixed damage)
-                double temp_rest_value = -_attackToDo.Target.HP;  // Rest prioritizes health gain
-                totalValueRandom = temp_rest_value;
-                Node restNode = new Node(totalValueRandom, attack, openNode);
-                expandNodes.Add(restNode);
-            }
-        }
-
-
-        //for (int i = 0; i < Player.Attacks.Length; i++)
-        //{
-        //    int numAttacks = Player.Attacks[i].MaxDam - Player.Attacks[i].MinDam;
-        //    double totalValueRandom = 0;
-        //    if (numAttacks <= 0)
-        //    {
-        //        double temp_rest_value = - _attackToDo.Target.HP  + (double) (Player.Attacks[i].Energy - Player.Energy) / 10;
-
-        //        totalValueRandom += temp_rest_value;
-
-        //        Node restNode = new Node(totalValueRandom, Player.Attacks[i], firstNode);
-        //        expandNodes.Add(restNode);
-
-        //        continue;
-        //    }
-
-        //    for (int j = 0; j <= numAttacks; j++)
-        //    {
-        //        double temp_value = (- _attackToDo.Target.HP + Player.Attacks[i].MinDam + j) + (double) (Player.Attacks[i].Energy - Player.Energy) / 10;
-
-        //        totalValueRandom += temp_value * (Player.Attacks[i].HitChance / (numAttacks + 1));
-        //    }
-        //    double temp_miss_value = ( - _attackToDo.Target.HP)  + (double) (Player.Attacks[i].Energy - Player.Energy) / 10;
-
-        //    totalValueRandom += temp_miss_value * (1 - Player.Attacks[i].HitChance);
-
-        //    Node calculatedNode = new Node(totalValueRandom, Player.Attacks[i], firstNode);
-        //    expandNodes.Add(calculatedNode);
-        //}
-
-        List<Node> orderNodes = expandNodes.OrderBy(node => node.val).ToList();
-
-        for (int i  = 0; i < orderNodes.Count; i++)
-        {
-            Debug.Log("Calculo de nodo random. valor: " + orderNodes[i].val + " Name: " + orderNodes[i].attack.Name);
-        }
 
     }
 
@@ -338,7 +204,7 @@ public class AIController : MonoBehaviour
     }
     private void Act()
     {
-        // Debug.Log("IA: " + _attackToDo.ToString());
+        Debug.Log("IA: " + _attackToDo.ToString());
         AttackEvent.Raise(_attackToDo);
     }
 
