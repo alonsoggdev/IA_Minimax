@@ -8,6 +8,9 @@ using UnityEngine;
 
 public class AIController : MonoBehaviour
 {
+
+    int attackRatio = 1;
+
     public GameObject Body;
     public PlayerInfo Player;
     public PlayerInfo otherPlayer;
@@ -19,15 +22,12 @@ public class AIController : MonoBehaviour
     private Attack _attackToDo;
 
     public AttackEvent AttackEvent;
-    
-    private List<double> _valueAttacks;
-    private List<double> randomValues;
-    private bool isMax = false;
+
+
 
     public Node MaxNode = new Node(-Mathf.Infinity, null, null, 0);
     public Node MinNode = new Node(Mathf.Infinity, null, null, 0);
     public Node openNode;
-    public List<Node> expandNodes;
 
     public struct State
     {
@@ -77,7 +77,7 @@ public class AIController : MonoBehaviour
 
     private Node MinValue(Node node, int k)
     {
-        if (k < 3 && GameState.IsFinished)
+        if (k < 4 && GameState.IsFinished)
         {
             double bestValue = Mathf.Infinity;
 
@@ -112,7 +112,6 @@ public class AIController : MonoBehaviour
                 }
                 else
                 {
-                    valueNode = Mathf.Infinity;
                     randomValue = Mathf.Infinity;
                 }
 
@@ -123,15 +122,7 @@ public class AIController : MonoBehaviour
                 }
             }
 
-            if (RandomValue(MinNode, false))
-            {
-                // ALGO
-            }
-            else
-            {
-                // OTRA COSA
-            }
-            //currentNode = RandomValue(MinNode, true, k);
+            RandomValue(MinNode, false);
 
             return MaxValue(MinNode, k + 1);
 
@@ -141,8 +132,7 @@ public class AIController : MonoBehaviour
 
     private Node MaxValue(Node node, int k)
     {
-        //Debug.Log(GameState.IsFinished);
-        if (k < 3 && GameState.IsFinished)
+        if (k < 4 && GameState.IsFinished)
         {
             double bestValue = - Mathf.Infinity;
 
@@ -177,7 +167,6 @@ public class AIController : MonoBehaviour
                 }
                 else
                 {
-                    valueNode = - Mathf.Infinity;
                     randomValue = - Mathf.Infinity;
                 }
 
@@ -188,15 +177,7 @@ public class AIController : MonoBehaviour
                 }
             }
 
-            if (RandomValue(MaxNode, true))
-            {
-                // ALGO
-            }
-            else
-            {
-                // OTRA COSA
-            }
-            //currentNode = sMinNode, true, k);
+            RandomValue(MaxNode, true);
 
             return MinValue(MaxNode, k);
         }
@@ -249,38 +230,19 @@ public class AIController : MonoBehaviour
 
         Node minNode = MinValue(openNode, 0);
 
-        Debug.Log("MaxNode " + MaxNode.ToString() + " K: " + MaxNode.k);
-        Debug.Log("MinNode value " + MaxNode.val);
-        Debug.Log("temp_state " + temp_state.lifePlayer);
-        Debug.Log("minNode" + minNode.ToString() + " K: " + minNode.k);
-
         Node parent = minNode.parentNode;
         while (parent.k > 0)
         {
-            Debug.Log("Nodes race " + parent.ToString() + " k: " + parent.k);
             parent = parent.parentNode;
         }
 
         _attackToDo.AttackMade = parent.attack;
-        _attackToDo.Source = Player;
-        //for(int i = minNode.k; i >= 0; i--)
-        //{
-        //    if (parent == null)
-        //    {
-        //        parent = minNode.parentNode;
-        //    }
-        //    else
-        //    {
-        //        parent = parent.parentNode;
-        //    }
-
-        //    Debug.Log("Nodes race " + parent.ToString() + " k: " + parent.k);
-        //}                          
+        _attackToDo.Source = Player;                     
     }
 
     private double CalculateValue(float _life, float _energy, float iteration, float _attack, float _energyCost)
     {
-        double response = (_life - _attack - iteration) + (double) (_energy - _energyCost) / 10;
+        double response = (_life - _attack - iteration) * attackRatio + (double) (_energy - _energyCost) / 10;
 
         return response;
     }
