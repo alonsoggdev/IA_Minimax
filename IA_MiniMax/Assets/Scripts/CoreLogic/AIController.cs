@@ -23,8 +23,6 @@ public class AIController : MonoBehaviour
     private List<double> _valueAttacks;
     private List<double> randomValues;
     private bool isMax = false;
-    //public int k = 0;
-    int test = 0;
 
     public Node MaxNode = new Node(-Mathf.Infinity, null, null, 0);
     public Node MinNode = new Node(Mathf.Infinity, null, null, 0);
@@ -125,7 +123,7 @@ public class AIController : MonoBehaviour
                 }
             }
 
-            if (RandomValue(MinNode, false, k))
+            if (RandomValue(MinNode, false))
             {
                 // ALGO
             }
@@ -190,7 +188,7 @@ public class AIController : MonoBehaviour
                 }
             }
 
-            if (RandomValue(MaxNode, true, k))
+            if (RandomValue(MaxNode, true))
             {
                 // ALGO
             }
@@ -198,32 +196,29 @@ public class AIController : MonoBehaviour
             {
                 // OTRA COSA
             }
-            //currentNode = RandomValue(MinNode, true, k);
+            //currentNode = sMinNode, true, k);
 
             return MinValue(MaxNode, k);
         }
-        test++;
         return node;
     }
 
-    private bool RandomValue(Node node, bool isMax, int k)
+    private bool RandomValue(Node node, bool isMax)
     {
+        if (isMax)
+        {
+            temp_state.energyPlayer -= node.attack.Energy;
+        }
+        else
+        {
+            temp_state.energyAI -= node.attack.Energy;
+        }
+
         float roll = Dice.PercentageChance();
         if (node.attack.HitChance >= roll)
         {
             int numAttacks = node.attack.MaxDam - node.attack.MinDam;
-            if (numAttacks <= 0)
-            {
-                if (isMax)
-                {
-                    temp_state.energyPlayer -= node.attack.Energy;
-                }
-                else
-                {
-                    temp_state.energyAI -= node.attack.Energy;
-                }
-            }
-            else
+            if (numAttacks > 0)
             {
                 for(int i = 0; i <= numAttacks; i++)
                 {
@@ -242,8 +237,10 @@ public class AIController : MonoBehaviour
                     }
                 }
             }
+
             return true;
         }
+
         return false;
     }
 
@@ -283,7 +280,7 @@ public class AIController : MonoBehaviour
 
     private double CalculateValue(float _life, float _energy, float iteration, float _attack, float _energyCost)
     {
-        double response = (_life - _attack + iteration) + (double) (_energy - _energyCost) / 10;
+        double response = (_life - _attack - iteration) + (double) (_energy - _energyCost) / 10;
 
         return response;
     }
