@@ -23,7 +23,8 @@ public class AIController : MonoBehaviour
     private List<double> _valueAttacks;
     private List<double> randomValues;
     private bool isMax = false;
-    public int k = 0;
+    //public int k = 0;
+    int test = 0;
 
     public Node MaxNode = new Node(-Mathf.Infinity, null, null, 0); //Esto esta al reves? Min es menos infinito
     public Node MinNode = new Node(Mathf.Infinity, null, null, 0);
@@ -68,7 +69,7 @@ public class AIController : MonoBehaviour
             energyPlayer = _attackToDo.Target.Energy,
         };
 
-        openNode = new Node(0, null, null, 0);
+        openNode = new Node(0, null, null, -1);
     }   
 
     private void Think()
@@ -78,7 +79,7 @@ public class AIController : MonoBehaviour
 
     private Node MinValue(Node node, int k)
     {
-        if (k < 2 || GameState.IsFinished)
+        if (k < 3 && GameState.IsFinished)
         {
             double bestValue = Mathf.Infinity;
 
@@ -89,7 +90,7 @@ public class AIController : MonoBehaviour
                 double valueNode = 0;
                 double randomValue = 0;
 
-                if (temp_state.energyAI < Player.Attacks[i].Energy)
+                if (temp_state.energyAI > Player.Attacks[i].Energy)
                 {
                     int numAttacks = Player.Attacks[i].MaxDam - Player.Attacks[i].MinDam;
                     if (numAttacks <= 0)
@@ -134,7 +135,7 @@ public class AIController : MonoBehaviour
             }
             //currentNode = RandomValue(MinNode, true, k);
 
-            return MaxValue(currentNode, k + 1);
+            return MaxValue(MinNode, k + 1);
 
         }
         return node;
@@ -142,7 +143,8 @@ public class AIController : MonoBehaviour
 
     private Node MaxValue(Node node, int k)
     {
-        if (k < 2 || GameState.IsFinished)
+        //Debug.Log(GameState.IsFinished);
+        if (k < 3 && GameState.IsFinished)
         {
             double bestValue = - Mathf.Infinity;
 
@@ -153,7 +155,7 @@ public class AIController : MonoBehaviour
                 double valueNode = 0;
                 double randomValue = 0;
 
-                if (temp_state.energyAI < Player.Attacks[i].Energy)
+                if (temp_state.energyPlayer > Player.Attacks[i].Energy)
                 {
                     int numAttacks = Player.Attacks[i].MaxDam - Player.Attacks[i].MinDam;
                     if (numAttacks <= 0)
@@ -198,9 +200,9 @@ public class AIController : MonoBehaviour
             }
             //currentNode = RandomValue(MinNode, true, k);
 
-            return MinValue(currentNode, k + 1);
+            return MinValue(MaxNode, k);
         }
-
+        test++;
         return node;
     }
 
@@ -248,9 +250,35 @@ public class AIController : MonoBehaviour
     private void ExpectMiniMax()
     {
 
-        Node maxNode = MaxValue(openNode, k);
+        Node minNode = MinValue(openNode, 0);
 
-        Debug.Log("maxNode" + maxNode.ToString());
+        Debug.Log("MaxNode " + MaxNode.ToString() + " K: " + MaxNode.k);
+        Debug.Log("MinNode value " + MaxNode.val);
+        Debug.Log("temp_state " + temp_state.lifePlayer);
+        Debug.Log("minNode" + minNode.ToString() + " K: " + minNode.k);
+
+        Node parent = minNode.parentNode;
+        while (parent.k > 0)
+        {
+            Debug.Log("Nodes race " + parent.ToString() + " k: " + parent.k);
+            parent = parent.parentNode;
+        }
+
+        _attackToDo.AttackMade = parent.attack;
+        _attackToDo.Source = Player;
+        //for(int i = minNode.k; i >= 0; i--)
+        //{
+        //    if (parent == null)
+        //    {
+        //        parent = minNode.parentNode;
+        //    }
+        //    else
+        //    {
+        //        parent = parent.parentNode;
+        //    }
+
+        //    Debug.Log("Nodes race " + parent.ToString() + " k: " + parent.k);
+        //}
 
 
         //SIN HORIZONTE
@@ -279,9 +307,9 @@ public class AIController : MonoBehaviour
 
 
 
-        int randomAttack = Random.Range(0, Player.Attacks.Length - 1);
-        _attackToDo.AttackMade = Player.Attacks[randomAttack];
-        _attackToDo.Source = Player;        
+        //int randomAttack = Random.Range(0, Player.Attacks.Length - 1);
+        //_attackToDo.AttackMade = Player.Attacks[randomAttack];
+        //_attackToDo.Source = Player;        
                             
     }
 
