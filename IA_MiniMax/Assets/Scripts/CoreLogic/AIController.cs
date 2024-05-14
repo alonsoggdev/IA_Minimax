@@ -26,7 +26,7 @@ public class AIController : MonoBehaviour
     //public int k = 0;
     int test = 0;
 
-    public Node MaxNode = new Node(-Mathf.Infinity, null, null, 0); //Esto esta al reves? Min es menos infinito
+    public Node MaxNode = new Node(-Mathf.Infinity, null, null, 0);
     public Node MinNode = new Node(Mathf.Infinity, null, null, 0);
     public Node openNode;
     public List<Node> expandNodes;
@@ -278,39 +278,7 @@ public class AIController : MonoBehaviour
         //    }
 
         //    Debug.Log("Nodes race " + parent.ToString() + " k: " + parent.k);
-        //}
-
-
-        //SIN HORIZONTE
-        //Construir el árbol de juego
-        // Detectar el nodo en el que GameState.IsFinished = true;
-
-        //CON HORIZONTE
-        //Construir un árbol de juego con horizonte h
-        //Calcular el valor de cada nodo terminal
-        //Elegir el valor mayor
-        //Colapsar el arbol desde ese nodo y ejecutar la accion
-
-        //CALCULAR VALOR HEURISTICO
-        //Variables: Daño, %impacto, energía, vida oponente, vida propia
-        //Prioridades:
-        //Mantenerse con vida
-        //Matar al enemigo
-        //Mantener energia
-        //Hacerle daño
-        //70-30 de posibilidades de un ataque u otro:
-        //Enemigo con <= 4 vida>
-        //Ataque ligero 70%
-        //Enemigo con >4 de vida
-        //Ataque pesado 70%
-
-
-
-
-        //int randomAttack = Random.Range(0, Player.Attacks.Length - 1);
-        //_attackToDo.AttackMade = Player.Attacks[randomAttack];
-        //_attackToDo.Source = Player;        
-                            
+        //}                          
     }
 
     private double CalculateValue(float _life, float _energy, float iteration, float _attack, float _energyCost)
