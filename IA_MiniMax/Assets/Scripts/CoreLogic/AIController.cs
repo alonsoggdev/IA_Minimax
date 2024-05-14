@@ -23,12 +23,22 @@ public class AIController : MonoBehaviour
     private List<double> _valueAttacks;
     private List<double> randomValues;
     private bool isMax = false;
-    public int k = 3;
+    public int k = 0;
 
-    public Node MaxNode = new Node(-Mathf.Infinity, null, null); //Esto esta al reves? Min es menos infinito
-    public Node MinNode = new Node(Mathf.Infinity, null, null);
+    public Node MaxNode = new Node(-Mathf.Infinity, null, null, 0); //Esto esta al reves? Min es menos infinito
+    public Node MinNode = new Node(Mathf.Infinity, null, null, 0);
     public Node openNode;
     public List<Node> expandNodes;
+
+    public struct State
+    {
+        public float lifePlayer;
+        public float lifeAI;
+        public float energyAI;
+        public float energyPlayer;
+    }
+
+    State temp_state;
 
     public void OnGameTurnChange(PlayerInfo currentTurn)
     {
@@ -40,58 +50,91 @@ public class AIController : MonoBehaviour
 
     private void Perceive()
     {
+        _attackToDo = new Attack();
+        foreach(PlayerInfo player in GameState.ListOfPlayers.Players)
+        {
+            if (player != Player)
+            {
+                _attackToDo.Target = player;
+                break;
+            }
+        }
 
-    }
+        temp_state = new State
+        {
+            lifePlayer = _attackToDo.Target.HP,
+            lifeAI = Player.HP,
+            energyAI = Player.Energy,
+            energyPlayer = _attackToDo.Target.Energy,
+        };
+
+        openNode = new Node(0, null, null, 0);
+    }   
 
     private void Think()
     {
         ExpectMiniMax();
     }
 
-    public double GetValue(AttackInfo _attack, PlayerInfo thisPlayer, PlayerInfo otherPlayer)
-    {
-        double dmg = (_attack.MinDam + _attack.MaxDam) / 2;
-        double val = (dmg * _attack.HitChance - (otherPlayer.HP - dmg / 10) + ((thisPlayer.Energy - _attack.Energy) / 100));
-
-        //Si tenemos que usar el random
-        switch (_attack.Name)
-        {
-            case "Dummy":
-
-                break;
-            case "Hard":
-                break;
-            case "Soft":
-                break;
-            case "Rest":
-                break;
-            default:
-                Debug.Log("Wrong attack chosen");
-                break;
-        }
-
-        return val;
-
-    }
-
     private Node MinValue(Node node, int k)
     {
-        if (k < 4 && !GameState.IsFinished)
+        if (k < 2 || GameState.IsFinished)
         {
-            if (node.val < MinNode.val)
-                MinNode = node;
+            double bestValue = Mathf.Infinity;
+
+            Node currentNode = null;
 
             for (int i = 0; i < Player.Attacks.Length; i++)
             {
-                double val = GetValue(Player.Attacks[i], Player, otherPlayer);
-                expandNodes[i] = new Node(val, Player.Attacks[i], openNode);
-                openNode = expandNodes[i];
+                double valueNode = 0;
+                double randomValue = 0;
+
+                if (temp_state.energyAI < Player.Attacks[i].Energy)
+                {
+                    int numAttacks = Player.Attacks[i].MaxDam - Player.Attacks[i].MinDam;
+                    if (numAttacks <= 0)
+                    {
+                        // Rest
+                        valueNode = CalculateValue(temp_state.lifePlayer, temp_state.energyAI, 0, Player.Attacks[i].MinDam, Player.Attacks[i].Energy);
+                        randomValue = valueNode;
+                        currentNode = new Node(valueNode, Player.Attacks[i], node, k);
+                    }
+                    else
+                    {
+                        for (int j = 0; j <= numAttacks; j++)
+                        {
+                            valueNode = CalculateValue(temp_state.lifePlayer, temp_state.energyAI, j, Player.Attacks[i].MinDam, Player.Attacks[i].Energy);
+                            randomValue += valueNode * (Player.Attacks[i].HitChance / (numAttacks + 1));
+                        }
+                        valueNode = CalculateValue(temp_state.lifePlayer, temp_state.energyAI, 0, 0, Player.Attacks[i].Energy);
+                        randomValue += valueNode * (1 - Player.Attacks[i].HitChance);
+                        currentNode = new Node(randomValue, Player.Attacks[i], node, k);
+                    }
+                }
+                else
+                {
+                    valueNode = Mathf.Infinity;
+                    randomValue = Mathf.Infinity;
+                }
+
+                if (randomValue < bestValue)
+                {
+                    bestValue = randomValue;
+                    MinNode = currentNode;
+                }
             }
 
-            foreach (Node expandedNode in expandNodes)
+            if (RandomValue(MinNode, false, k))
             {
-                RandomValue(expandedNode, true, k);
+                // ALGO
             }
+            else
+            {
+                // OTRA COSA
+            }
+            //currentNode = RandomValue(MinNode, true, k);
+
+            return MaxValue(currentNode, k + 1);
 
         }
         return node;
@@ -99,76 +142,115 @@ public class AIController : MonoBehaviour
 
     private Node MaxValue(Node node, int k)
     {
-        if (k < 4 && !GameState.IsFinished)
+        if (k < 2 || GameState.IsFinished)
         {
-            if (node.val > MaxNode.val)
-                MaxNode = node;
+            double bestValue = - Mathf.Infinity;
 
-            //Abrimos cuatro nodos por las cuatro acciones posibles
-            for(int i = 0; i < Player.Attacks.Length; i++)
+            Node currentNode = null;
+
+            for (int i = 0; i < Player.Attacks.Length; i++)
             {
-                double val = GetValue(Player.Attacks[i], Player, otherPlayer);
-                expandNodes[i] = new Node(val, Player.Attacks[i], openNode);
-                openNode = expandNodes[i];
+                double valueNode = 0;
+                double randomValue = 0;
+
+                if (temp_state.energyAI < Player.Attacks[i].Energy)
+                {
+                    int numAttacks = Player.Attacks[i].MaxDam - Player.Attacks[i].MinDam;
+                    if (numAttacks <= 0)
+                    {
+                        // Rest
+                        valueNode = CalculateValue(temp_state.lifePlayer, temp_state.energyAI, 0, Player.Attacks[i].MinDam, Player.Attacks[i].Energy);
+                        randomValue = valueNode;
+                        currentNode = new Node(valueNode, Player.Attacks[i], node, k + 1);
+                    }
+                    else
+                    {
+                        for (int j = 0; j <= numAttacks; j++)
+                        {
+                            valueNode = CalculateValue(temp_state.lifePlayer, temp_state.energyAI, j, Player.Attacks[i].MinDam, Player.Attacks[i].Energy);
+                            randomValue += valueNode * (Player.Attacks[i].HitChance / (numAttacks + 1));
+                        }
+                        valueNode = CalculateValue(temp_state.lifePlayer, temp_state.energyAI, 0, 0, Player.Attacks[i].Energy);
+                        randomValue += valueNode * (1 - Player.Attacks[i].HitChance);
+                        currentNode = new Node(randomValue, Player.Attacks[i], node, k + 1);
+                    }
+                }
+                else
+                {
+                    valueNode = - Mathf.Infinity;
+                    randomValue = - Mathf.Infinity;
+                }
+
+                if (randomValue > bestValue)
+                {
+                    bestValue = randomValue;
+                    MaxNode = currentNode;
+                }
             }
 
-            foreach(Node expandedNode in expandNodes)
+            if (RandomValue(MaxNode, true, k))
             {
-                RandomValue(expandedNode, true, k);
+                // ALGO
             }
+            else
+            {
+                // OTRA COSA
+            }
+            //currentNode = RandomValue(MinNode, true, k);
+
+            return MinValue(currentNode, k + 1);
         }
 
         return node;
     }
 
-    private void RandomValue(Node node, bool isMax, int k)
+    private bool RandomValue(Node node, bool isMax, int k)
     {
-        bool hits = false;
-        if(k < 4 && !GameState.IsFinished)
+        float roll = Dice.PercentageChance();
+        if (node.attack.HitChance >= roll)
         {
-
-            if(node.attack.HitChance >= Dice.PercentageChance())
+            int numAttacks = node.attack.MaxDam - node.attack.MinDam;
+            if (numAttacks <= 0)
             {
-                int valDmg = Dice.RangeRoll(node.attack.MinDam, node.attack.MaxDam);
-
-                for(int i = node.attack.MinDam; i< node.attack.MaxDam; i++)
+                if (isMax)
                 {
-                    if(i == valDmg)
-                    {
-                        double val = GetValue(node.attack, Player, otherPlayer);
-                        expandNodes.Add(new Node(val, node.attack, node));
-                        openNode = expandNodes.Last();
-                        if (isMax == true)
-                        {
-                            MinValue(expandNodes.Last(), k);
-                        }
-                        else
-                            MaxValue(expandNodes.Last(), k);
-                    }
+                    temp_state.energyPlayer -= node.attack.Energy;
                 }
-
+                else
+                {
+                    temp_state.energyAI -= node.attack.Energy;
+                }
             }
             else
             {
-                double val = GetValue(node.attack, Player, otherPlayer);
-                expandNodes.Add(new Node(val, node.attack, node));
-                openNode = expandNodes.Last();
-                if (isMax == true)
+                for(int i = 0; i <= numAttacks; i++)
                 {
-                    MinValue(expandNodes.Last(), k);
+                    double percentage = 0;
+                    percentage += (node.attack.HitChance) / (numAttacks + 1);
+                    if (percentage >= roll)
+                    {
+                        if (isMax)
+                        {
+                            temp_state.lifeAI -= node.attack.MinDam + i;
+                        }
+                        else
+                        {
+                            temp_state.lifePlayer -= node.attack.MinDam + i;
+                        }
+                    }
                 }
-                else
-                    MaxValue(expandNodes.Last(), k);
             }
-            
+            return true;
         }
-
+        return false;
     }
 
     private void ExpectMiniMax()
     {
 
-        MaxValue(openNode, k);
+        Node maxNode = MaxValue(openNode, k);
+
+        Debug.Log("maxNode" + maxNode.ToString());
 
 
         //SIN HORIZONTE
@@ -202,6 +284,14 @@ public class AIController : MonoBehaviour
         _attackToDo.Source = Player;        
                             
     }
+
+    private double CalculateValue(float _life, float _energy, float iteration, float _attack, float _energyCost)
+    {
+        double response = (_life - _attack + iteration) + (double) (_energy - _energyCost) / 10;
+
+        return response;
+    }
+
     private void Act()
     {
         Debug.Log("IA: " + _attackToDo.ToString());

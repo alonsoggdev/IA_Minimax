@@ -20,4 +20,9 @@ public class Node
         this.k = k;
     }
 
+    public override string ToString()
+    {
+        return "Node with attack " + attack.name; 
+    }
+
 }
